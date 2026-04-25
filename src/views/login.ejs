@@ -17,6 +17,7 @@
             </h2>
 
             <form action="/login" method="POST" class="space-y-5">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <% if (errors && errors.length) { %>
                     <div class="mb-5 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm text-center">
                         <% errors.forEach(function(err) { %>

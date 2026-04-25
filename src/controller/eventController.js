@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Event = require("../model/eventModel");
 
 exports.getEventList = async (req, res, next) => {
@@ -32,7 +33,11 @@ exports.getAdminDashboard = async (req, res, next) => {
 };
 
 exports.deleteEvent = async (req, res, next) => {
-  await Event.findByIdAndDelete(req.params.eventId);
+  const { eventId } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(eventId)) {
+    return res.status(400).send("Invalid Event ID");
+  }
+  await Event.findByIdAndDelete(eventId);
   res.redirect("/admin-dashboard");
 };
 
@@ -42,6 +47,10 @@ exports.postBookEvent = async (req, res, next) => {
     const userId = req.session.userId;
 
     if (!userId) return res.redirect("/login");
+
+    if (!mongoose.Types.ObjectId.isValid(eventId)) {
+      return res.status(400).send("Invalid Event ID");
+    }
 
     const event = await Event.findById(eventId);
     if (!event) return res.status(404).send("Event not found");

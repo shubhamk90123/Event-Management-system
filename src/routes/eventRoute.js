@@ -11,11 +11,25 @@ const {
   postBookEvent,
 } = require("../controller/eventController");
 
+const {
+  signupValidationRules,
+  loginValidationRules,
+  eventValidationRules,
+  validate,
+} = require("../middlewares/validationMiddleware");
+
 eventRouter.get("/eventlist", isAuthenticated, getEventList);
 
 eventRouter.get("/create-event", isAuthenticated, isAdmin, getCreateEvent);
 
-eventRouter.post("/create-event", isAuthenticated, isAdmin, postCreateEvent);
+eventRouter.post(
+  "/create-event",
+  isAuthenticated,
+  isAdmin,
+  eventValidationRules,
+  validate,
+  postCreateEvent,
+);
 
 eventRouter.post(
   "/delete-event/:eventId",
