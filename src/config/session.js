@@ -1,9 +1,14 @@
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 
 const sessionConfig = session({
   secret: process.env.SESSION_SECRET || "secure_event_manager_secret",
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    collectionName: "sessions",
+  }),
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // 24 hours
     httpOnly: true,

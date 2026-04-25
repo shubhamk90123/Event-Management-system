@@ -78,7 +78,9 @@ app.use((err, req, res, next) => {
     console.error(`[ERROR] ${err.message}\n${err.stack}`);
   }
 
+
   res.status(statusCode).render("404", {
+    title: statusCode === 404 ? "Page Not Found" : "Server Error",
     message: isProduction ? "Something went wrong!" : err.message,
     error: isProduction ? {} : err,
   });
