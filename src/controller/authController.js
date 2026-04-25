@@ -44,7 +44,7 @@ exports.postsignUp = async (req, res, next) => {
     if (await User.findOne({ email })) {
       return res.render("signup", {
         errors: ["User Already Exists."],
-        oldInput: { name },
+        oldInput: { name, email, role },
       });
     }
 
