@@ -5,7 +5,7 @@ const sessionConfig = session({
   secret: process.env.SESSION_SECRET || "secure_event_manager_secret",
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({
+  store: (MongoStore.create ? MongoStore : MongoStore.default).create({
     mongoUrl: process.env.MONGO_URI,
     collectionName: "sessions",
   }),
