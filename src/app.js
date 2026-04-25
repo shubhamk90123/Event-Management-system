@@ -5,19 +5,23 @@ const mongoSanitize = require("express-mongo-sanitize");
 const csrf = require("csurf");
 const compression = require("compression");
 
+const app = express();
+
+
 // Config Imports
 const sessionConfig = require("./config/session");
 const { globalLimiter, authLimiter } = require("./config/limiter");
+
+//Allows proxy
+app.set("trust proxy", 1);
 
 // Router Imports
 const pageRouter = require("./routes/pageRoute");
 const eventRouter = require("./routes/eventRoute");
 const authRouter = require("./routes/authRouter");
 
-const app = express();
-
 // --- Security & Performance Middlewares ---
-app.use(helmet()); 
+app.use(helmet());
 app.use(compression());
 
 // Express 5 compatibility shim for mongoSanitize
@@ -42,8 +46,8 @@ app.use(express.static(path.join(__dirname, "../public")));
 
 // --- Body Parsing & Sanitization ---
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); 
-app.use(mongoSanitize()); 
+app.use(express.json());
+app.use(mongoSanitize());
 
 // --- Session & CSRF ---
 app.use(sessionConfig);
@@ -77,7 +81,6 @@ app.use((err, req, res, next) => {
   if (!isProduction) {
     console.error(`[ERROR] ${err.message}\n${err.stack}`);
   }
-
 
   res.status(statusCode).render("404", {
     title: statusCode === 404 ? "Page Not Found" : "Server Error",
