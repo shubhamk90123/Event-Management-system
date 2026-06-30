@@ -12,10 +12,16 @@ exports.getCreateEvent = (req, res, next) => {
 
 exports.postCreateEvent = async (req, res, next) => {
   const { name, date, location, details } = req.body;
-  const event = new Event({ name, date, location, details, createdBy: req.session.userId });
+  const event = new Event({
+    name,
+    date,
+    location,
+    details,
+    createdBy: req.session.userId,
+  });
   await event.save();
   return res.redirect("/admin-dashboard");
-};  
+};
 
 exports.getAdminDashboard = async (req, res, next) => {
   const events = await Event.find();
@@ -29,7 +35,11 @@ exports.getAdminDashboard = async (req, res, next) => {
     );
   }
 
-  return res.render("adminDashboard", { events, selectedEvent, selectedEventId });
+  return res.render("adminDashboard", {
+    events,
+    selectedEvent,
+    selectedEventId,
+  });
 };
 
 exports.deleteEvent = async (req, res, next) => {
@@ -67,16 +77,3 @@ exports.postBookEvent = async (req, res, next) => {
     next(err);
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-

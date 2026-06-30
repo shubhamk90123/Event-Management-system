@@ -7,7 +7,6 @@ const compression = require("compression");
 
 const app = express();
 
-
 // Config Imports
 const sessionConfig = require("./config/session");
 const { globalLimiter, authLimiter } = require("./config/limiter");
