@@ -1,16 +1,18 @@
 const mongoose = require("mongoose");
 const Event = require("../model/eventModel");
+const AppError = require("../utils/appError");
+const catchAsync = require("../utils/catchAsync");
 
-exports.getEventList = async (req, res, next) => {
+exports.getEventList = catchAsync(async (req, res, next) => {
   const events = await Event.find();
   return res.render("eventlist", { events });
-};
+});
 
 exports.getCreateEvent = (req, res, next) => {
   return res.render("createEvent");
 };
 
-exports.postCreateEvent = async (req, res, next) => {
+exports.postCreateEvent = catchAsync(async (req, res, next) => {
   const { name, date, location, details } = req.body;
   const event = new Event({
     name,
@@ -21,18 +23,26 @@ exports.postCreateEvent = async (req, res, next) => {
   });
   await event.save();
   return res.redirect("/admin-dashboard");
-};
+});
 
-exports.getAdminDashboard = async (req, res, next) => {
+exports.getAdminDashboard = catchAsync(async (req, res, next) => {
   const events = await Event.find();
   const selectedEventId = req.query.eventId || null;
   let selectedEvent = null;
 
   if (selectedEventId) {
+    if (!mongoose.Types.ObjectId.isValid(selectedEventId)) {
+      return next(new AppError("Invalid Event ID", 400));
+    }
+
     selectedEvent = await Event.findById(selectedEventId).populate(
       "attendees",
       "name email",
     );
+
+    if (!selectedEvent) {
+      return next(new AppError("Event not found", 404));
+    }
   }
 
   return res.render("adminDashboard", {
@@ -40,40 +50,48 @@ exports.getAdminDashboard = async (req, res, next) => {
     selectedEvent,
     selectedEventId,
   });
-};
+});
 
-exports.deleteEvent = async (req, res, next) => {
+exports.deleteEvent = catchAsync(async (req, res, next) => {
   const { eventId } = req.params;
+
   if (!mongoose.Types.ObjectId.isValid(eventId)) {
-    return res.status(400).send("Invalid Event ID");
+    return next(new AppError("Invalid Event ID", 400));
   }
-  await Event.findByIdAndDelete(eventId);
+
+  const event = await Event.findByIdAndDelete(eventId);
+
+  if (!event) {
+    return next(new AppError("Event not found", 404));
+  }
+
   return res.redirect("/admin-dashboard");
-};
+});
 
-exports.postBookEvent = async (req, res, next) => {
-  try {
-    const { eventId } = req.params;
-    const userId = req.session.userId;
+exports.postBookEvent = catchAsync(async (req, res, next) => {
+  const { eventId } = req.params;
+  const userId = req.session.userId;
 
-    if (!userId) return res.redirect("/login");
-
-    if (!mongoose.Types.ObjectId.isValid(eventId)) {
-      return res.status(400).send("Invalid Event ID");
-    }
-
-    const event = await Event.findById(eventId);
-    if (!event) return res.status(404).send("Event not found");
-
-    if (event.attendees.includes(userId)) {
-      return res.redirect("/eventlist");
-    }
-
-    event.attendees.push(userId);
-    await event.save();
-
-    return res.redirect("/eventlist");
-  } catch (err) {
-    next(err);
+  if (!userId) {
+    return res.redirect("/login");
   }
-};
+
+  if (!mongoose.Types.ObjectId.isValid(eventId)) {
+    return next(new AppError("Invalid Event ID", 400));
+  }
+
+  const event = await Event.findById(eventId);
+
+  if (!event) {
+    return next(new AppError("Event not found", 404));
+  }
+
+  if (event.attendees.includes(userId)) {
+    return res.redirect("/eventlist");
+  }
+
+  event.attendees.push(userId);
+  await event.save();
+
+  return res.redirect("/eventlist");
+});

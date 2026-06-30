@@ -1,4 +1,5 @@
 const { body, validationResult } = require("express-validator");
+const AppError = require("../utils/appError");
 
 // Helper to handle validation results
 const validate = (req, res, next) => {
@@ -18,12 +19,18 @@ const validate = (req, res, next) => {
     "/create-event": "createEvent",
   };
 
-  const view = viewMap[req.path] || "error";
-  
-  return res.status(422).render(view, {
-    errors: extractedErrors,
-    oldInput: req.body,
-  });
+  const view = viewMap[req.path];
+
+  // For known form pages, show errors inline so the user can correct them
+  if (view) {
+    return res.status(422).render(view, {
+      errors: extractedErrors,
+      oldInput: req.body,
+    });
+  }
+
+  // For unknown routes, forward to the global error handler
+  return next(new AppError(extractedErrors.join(". "), 422));
 };
 
 // Signup validation rules
