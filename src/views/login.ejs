@@ -1,65 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login</title>
-        <link rel="stylesheet" href="/css/output.css">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In · Event Management</title>
+    <link rel="stylesheet" href="/css/output.css">
+    <style>
+        .fade-in { animation: fadeIn .7s cubic-bezier(.21, 1.02, .73, 1) forwards; }
+        .slide-in { animation: slideIn .8s cubic-bezier(.21, 1.02, .73, 1) forwards; opacity: 0; }
+        .float-slow { animation: floatSlow 9s ease-in-out infinite; }
+        .float-slower { animation: floatSlow 13s ease-in-out infinite reverse; }
+        .field-icon { transition: color .2s ease, transform .2s ease; }
+        .auth-input:focus + .field-icon,
+        .auth-input:focus ~ .field-icon { color: #2563eb; }
+        .auth-input { transition: border-color .2s ease, box-shadow .2s ease, transform .15s ease; }
+        .auth-input:focus { transform: translateY(-1px); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(18px) scale(.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(24px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            50% { transform: translateY(-22px) translateX(10px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .fade-in, .slide-in, .float-slow, .float-slower { animation: none !important; }
+            .slide-in { opacity: 1; }
+        }
+    </style>
+</head>
 
-    <body class="bg-gray-100 min-h-screen flex items-center justify-center px-4">
+<body class="bg-gradient-to-br from-blue-50 via-white to-gray-100 min-h-screen flex items-center justify-center px-4 py-10 overflow-hidden">
 
-        <div class="w-full max-w-md bg-white p-6 rounded-xl shadow-md">
+    <!-- Decorative blurred blobs (match landing) -->
+    <div class="fixed w-80 h-80 bg-blue-200 rounded-full blur-3xl opacity-30 top-[-4rem] left-[-4rem] float-slow pointer-events-none"></div>
+    <div class="fixed w-80 h-80 bg-blue-300 rounded-full blur-3xl opacity-20 bottom-[-4rem] right-[-4rem] float-slower pointer-events-none"></div>
+    <div class="fixed w-48 h-48 bg-indigo-200 rounded-full blur-3xl opacity-20 top-1/3 right-1/4 float-slow pointer-events-none"></div>
 
-            <h2 class="text-2xl font-semibold text-center text-gray-800 mb-6">
-                Log In
-            </h2>
+    <div class="relative w-full max-w-5xl min-h-[540px] grid md:grid-cols-2 bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 overflow-hidden fade-in">
 
-            <form action="/login" method="POST" class="space-y-5">
+        <!-- Brand / visual panel -->
+        <aside class="hidden md:flex flex-col justify-between p-10 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white slide-in">
+            <div class="flex items-center gap-2">
+                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                    <path d="M16 2v4M8 2v4M3 10h18"></path>
+                </svg>
+                <span class="text-lg font-semibold tracking-tight">EventFlow</span>
+            </div>
+
+            <div>
+                <h2 class="text-3xl font-semibold tracking-tight leading-tight mb-4">
+                    Welcome back to seamless event management.
+                </h2>
+                <p class="text-blue-100/80 text-sm leading-relaxed max-w-xs">
+                    Plan, create and oversee your events from one clean dashboard. Sign in to pick up right where you left off.
+                </p>
+            </div>
+
+            <ul class="space-y-3 text-sm text-blue-50/90">
+                <li class="flex items-center gap-2"><svg class="w-4 h-4 text-blue-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg> Create & manage events effortlessly</li>
+                <li class="flex items-center gap-2"><svg class="w-4 h-4 text-blue-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg> Real-time overview for admins</li>
+                <li class="flex items-center gap-2"><svg class="w-4 h-4 text-blue-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg> Secure, session-based access</li>
+            </ul>
+        </aside>
+
+        <!-- Form panel -->
+        <main class="flex flex-col justify-center p-8 sm:p-10">
+            <!-- Mobile logo -->
+            <div class="md:hidden flex items-center justify-center gap-2 mb-6">
+                <svg class="w-6 h-6 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                    <path d="M16 2v4M8 2v4M3 10h18"></path>
+                </svg>
+                <span class="text-lg font-semibold tracking-tight text-gray-800">EventFlow</span>
+            </div>
+
+            <div class="mb-6 text-center md:text-left">
+                <h1 class="text-2xl sm:text-3xl font-semibold text-gray-800 tracking-tight">Log in</h1>
+                <p class="text-sm text-gray-500 mt-1">Enter your credentials to access your dashboard.</p>
+            </div>
+
+            <% if (errors && errors.length) { %>
+                <div class="mb-5 p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm space-y-1" role="alert">
+                    <% errors.forEach(function(err) { %>
+                        <p class="m-0 flex items-center gap-2">
+                            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                            <span><%= err %></span>
+                        </p>
+                    <% }) %>
+                </div>
+            <% } %>
+
+            <form action="/login" method="POST" class="space-y-4" autocomplete="on">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                <% if (errors && errors.length) { %>
-                    <div class="mb-5 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm text-center">
-                        <% errors.forEach(function(err) { %>
-                            <p class="m-0">
-                                <%= err %>
-                            </p>
-                            <% }) %>
+
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-600 mb-1.5">Email</label>
+                    <div class="relative">
+                        <svg class="field-icon w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/>
+                        </svg>
+                        <input id="email" type="email" name="email" value="<%= oldInput?.email || '' %>" required
+                            class="auth-input w-full pl-11 pr-3 py-2.5 bg-white/70 border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15"
+                            placeholder="you@example.com" autocomplete="email">
                     </div>
-                    <% } %> 
+                </div>
 
-                        <div>
-                            <label class="block text-sm text-gray-600 mb-1">Email</label>
-                            <input type="email" name="email" value="<%= oldInput?.email || '' %>" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter your email">
-                        </div>
-
-
-                        <div>
-                            <label class="block text-sm text-gray-600 mb-1">Password</label>
-                            <input type="password" name="password" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter your password">
-                        </div>
-
-                        <button type="submit"
-                            class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition">
-                            Log In
+                <!-- Password -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-600 mb-1.5">Password</label>
+                    <div class="relative">
+                        <svg class="field-icon w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        <input id="password" type="password" name="password" required
+                            class="auth-input w-full pl-11 pr-12 py-2.5 bg-white/70 border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15"
+                            placeholder="••••••••" autocomplete="current-password">
+                        <button type="button" id="togglePw" aria-label="Show password"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition" tabindex="-1">
+                            <svg class="w-5 h-5 eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg class="w-5 h-5 eye-closed hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a13.16 13.16 0 0 1-1.67 2.68M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9 9 0 0 0 5.39-1.61M3 3l18 18M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
                         </button>
+                    </div>
+                </div>
 
+                <div class="flex items-center justify-between text-sm pt-1">
+                    <label class="flex items-center gap-2 text-gray-600 cursor-pointer select-none">
+                        <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500/30">
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" class="text-blue-600 hover:text-blue-700 hover:underline">Forgot password?</a>
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-blue-600 text-white py-2.5 rounded-xl font-medium shadow-md transition duration-300 hover:bg-blue-700 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:shadow-md">
+                    Sign in
+                </button>
             </form>
 
-
-            <p class="text-center text-sm text-gray-500 mt-5">
+            <p class="text-center text-sm text-gray-500 mt-6">
                 Don't have an account?
-                <a href="/signup" class="text-blue-600 hover:underline">
-                    Sign up
-                </a>
+                <a href="/signup" class="text-blue-600 font-medium hover:text-blue-700 hover:underline">Sign up</a>
             </p>
+        </main>
+    </div>
 
-        </div>
-
-    </body>
+    <script>
+        (function () {
+            var btn = document.getElementById('togglePw');
+            var pw = document.getElementById('password');
+            if (!btn || !pw) return;
+            btn.addEventListener('click', function () {
+                var show = pw.type === 'password';
+                pw.type = show ? 'text' : 'password';
+                btn.querySelector('.eye-open').classList.toggle('hidden', show);
+                btn.querySelector('.eye-closed').classList.toggle('hidden', !show);
+                btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+                pw.focus();
+            });
+        })();
+    </script>
+</body>
 
 </html>

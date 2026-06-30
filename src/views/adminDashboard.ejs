@@ -1,112 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Admin Dashboard - Event Management</title>
-        <link rel="stylesheet" href="/css/output.css">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard · EventFlow</title>
+    <link rel="stylesheet" href="/css/output.css">
+    <style>
+        .fade-in { animation: fadeIn .6s cubic-bezier(.21,1.02,.73,1) both; }
+        .stagger > * { animation: fadeIn .6s cubic-bezier(.21,1.02,.73,1) both; }
+        .stagger > *:nth-child(1) { animation-delay: .05s; }
+        .stagger > *:nth-child(2) { animation-delay: .12s; }
+        .stagger > *:nth-child(3) { animation-delay: .19s; }
+        .float-slow { animation: floatSlow 9s ease-in-out infinite; }
+        .float-slower { animation: floatSlow 13s ease-in-out infinite reverse; }
+        .row-hover { transition: background-color .2s ease, transform .15s ease; }
+        .row-hover:hover { transform: translateX(2px); }
+        .stat-card { transition: transform .25s ease, box-shadow .25s ease; }
+        .stat-card:hover { transform: translateY(-4px); }
+        .avatar { transition: transform .2s ease; }
+        .avatar:hover { transform: scale(1.12); z-index: 5; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes floatSlow {
+            0%,100% { transform: translateY(0) translateX(0); }
+            50% { transform: translateY(-22px) translateX(10px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .fade-in, .stagger > *, .float-slow, .float-slower { animation: none !important; }
+        }
+    </style>
+</head>
 
-    <body class="bg-linear-to-br from-gray-100 to-gray-200 min-h-screen p-6 flex justify-center items-start">
+<body class="bg-gradient-to-br from-blue-50 via-white to-gray-100 min-h-screen relative overflow-x-hidden">
 
-        <div class="bg-white p-10 rounded-2xl shadow-xl w-full max-w-5xl mt-6 border border-gray-100">
+    <!-- Decorative blurred blobs -->
+    <div class="fixed w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-25 top-[-8rem] right-[-6rem] float-slow pointer-events-none"></div>
+    <div class="fixed w-80 h-80 bg-indigo-300 rounded-full blur-3xl opacity-20 bottom-[-6rem] left-[-6rem] float-slower pointer-events-none"></div>
 
-            <h2 class="text-3xl font-bold text-center text-gray-800 mb-10 tracking-tight">
-                Event Management Dashboard
-            </h2>
-
-            <div class="overflow-x-auto mb-10 rounded-lg border border-gray-200">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-100">
-                            <th class="p-4 font-semibold text-gray-800 border border-gray-200">Event Name</th>
-                            <th class="p-4 font-semibold text-gray-800 border border-gray-200">Date</th>
-                            <th class="p-4 font-semibold text-gray-800 border border-gray-200">Location</th>
-
-                            <th class="p-4 font-semibold text-gray-800 border border-gray-200 text-center">Actions</th>
-                        </tr>
-                    </thead>
-
-
-                    <tbody>
-                        <% if (typeof events !=='undefined' && events.length> 0) { %>
-                            <% events.forEach(event=> { %>
-                                <tr class="hover:bg-gray-50 transition">
-                                    <td class="p-4 text-gray-800 border border-gray-200">
-                                        <%= event.name %>
-                                    </td>
-                                    <td class="p-4 text-gray-600 border border-gray-200">
-                                        <%= new Date(event.date).toLocaleDateString('en-GB', { day: '2-digit' ,
-                                            month: 'short' , year: 'numeric' }) %>
-                                    </td>
-                                    <td class="p-4 text-gray-600 border border-gray-200">
-                                        <%= event.location %>
-                                    </td>
-
-                                    <td class="p-4 flex gap-2 justify-center text-center border border-gray-200">
-                                        <a href="/admin-dashboard?eventId=<%= event._id %>"
-                                            class="text-white py-1.5 px-4 rounded border border-blue-700 shadow-sm hover:bg-blue-700 transition <%= selectedEventId && selectedEventId.toString() === event._id.toString() ? 'bg-blue-700' : 'bg-blue-600' %>">
-                                            View Users
-                                        </a>
-                                        <form method="POST" action="/delete-event/<%= event._id %>">
-                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                                            <button type="submit"
-                                                class="bg-red-600 text-white py-1.5 px-4 rounded hover:bg-red-700 transition">
-                                                Delete
-                                            </button>
-                                        </form>
-
-
-                                    </td>
-                                </tr>
-                                <% }) %>
-                                    <% } else { %>
-                                        <tr>
-                                            <td colspan="5"
-                                                class="p-8 text-center text-gray-500 border border-gray-200">No events
-                                                currently available.</td>
-                                        </tr>
-                                        <% } %>
-                    </tbody>
-                </table>
+    <!-- Top nav -->
+    <header class="sticky top-0 z-20 backdrop-blur-xl bg-white/70 border-b border-white/50">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <svg class="w-7 h-7 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                    <path d="M16 2v4M8 2v4M3 10h18"></path>
+                </svg>
+                <span class="text-lg font-semibold tracking-tight text-gray-800">EventFlow</span>
+                <span class="hidden sm:inline ml-2 px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-xs font-medium border border-indigo-100">Admin</span>
             </div>
-            <div class="mb-6">
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">
-                    Registered Users for each event
-                </h3>
-
-                <div class="bg-gray-50 rounded-lg border border-gray-200 divide-y">
-                    <% if (selectedEvent && selectedEvent.attendees.length> 0) { %>
-                        <% selectedEvent.attendees.forEach(user=> { %>
-                            <div class="p-4">
-                                Name : <%= user.name %> <br>Email: <%= user.email %>
-                            </div>
-                            <% }) %>
-                                <% } else { %>
-                                    <div class="p-4 text-gray-400">No users registered yet.</div>
-                                    <% } %>
-
-                </div>
-            </div>
-
-            <div class="text-center mt-10">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <a href="/create-event" class="flex items-center gap-1.5 text-sm font-medium text-white bg-blue-600 px-3.5 py-2 rounded-xl shadow-md transition duration-300 hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                    <span class="hidden sm:inline">Create event</span>
+                    <span class="sm:hidden">New</span>
+                </a>
                 <form action="/logout" method="POST" class="inline">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button type="submit"
-                        class="text-red-500 cursor-pointer font-medium hover:text-red-600 transition mx-2">Log
-                        Out</button>
-                </form>
-
-                <form action="/create-event" method="GET" class="inline">
-                    <button type="submit"
-                        class="text-blue-600 font-medium hover:text-blue-700 transition cursor-pointer mx-2">Create
-                        Event</button>
+                    <button type="submit" class="flex items-center gap-1.5 text-sm font-medium text-gray-600 px-3.5 py-2 rounded-xl border border-gray-200 bg-white/60 transition hover:text-red-600 hover:border-red-200 hover:bg-red-50">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                        <span class="hidden sm:inline">Log out</span>
+                    </button>
                 </form>
             </div>
+        </div>
+    </header>
 
+    <main class="relative z-10 max-w-6xl mx-auto px-6 py-8 sm:py-10">
+
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-8 fade-in">
+            <div>
+                <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight text-gray-800">
+                    Welcome back, <span class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Admin</span>
+                </h1>
+                <p class="text-gray-500 mt-1.5">Manage your events and view registered attendees.</p>
+            </div>
         </div>
 
-    </body>
+        <!-- Stat cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5 mb-10 stagger">
+            <div class="stat-card bg-white/70 backdrop-blur-xl p-5 rounded-2xl border border-white/50 shadow-md">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-semibold text-gray-800 leading-none"><%= events.length %></p>
+                        <p class="text-xs text-gray-500 mt-1">Total events</p>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card bg-white/70 backdrop-blur-xl p-5 rounded-2xl border border-white/50 shadow-md">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-semibold text-gray-800 leading-none"><%= selectedEvent ? selectedEvent.attendees.length : 0 %></p>
+                        <p class="text-xs text-gray-500 mt-1">Selected attendees</p>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card bg-white/70 backdrop-blur-xl p-5 rounded-2xl border border-white/50 shadow-md col-span-2 sm:col-span-1">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-semibold text-gray-800 leading-none"><%= selectedEvent ? 'Active' : 'Idle' %></p>
+                        <p class="text-xs text-gray-500 mt-1">Current view</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Events table -->
+        <section class="mb-8">
+            <h2 class="text-lg font-semibold text-gray-800 mb-3">Events</h2>
+            <div class="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/50 shadow-md overflow-hidden">
+                <div class="overflow-x-hidden">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 border-b border-gray-100">
+                                <th class="p-4 font-semibold text-gray-700 text-sm uppercase tracking-wide">Event</th>
+                                <th class="p-4 font-semibold text-gray-700 text-sm uppercase tracking-wide hidden sm:table-cell">Date</th>
+                                <th class="p-4 font-semibold text-gray-700 text-sm uppercase tracking-wide hidden md:table-cell">Location</th>
+                                <th class="p-4 font-semibold text-gray-700 text-sm uppercase tracking-wide text-center">Attendees</th>
+                                <th class="p-4 font-semibold text-gray-700 text-sm uppercase tracking-wide text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <% if (typeof events !== 'undefined' && events.length > 0) { %>
+                                <% events.forEach(event => { %>
+                                    <% const isActive = selectedEventId && selectedEventId.toString() === event._id.toString(); %>
+                                    <tr class="row-hover <%= isActive ? 'bg-blue-50/60' : 'hover:bg-gray-50/60' %>">
+                                        <td class="p-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center text-sm font-semibold shrink-0">
+                                                    <%= event.name.charAt(0).toUpperCase() %>
+                                                </div>
+                                                <span class="font-medium text-gray-800"><%= event.name %></span>
+                                            </div>
+                                        </td>
+                                        <td class="p-4 text-gray-600 text-sm hidden sm:table-cell">
+                                            <%= new Date(event.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+                                        </td>
+                                        <td class="p-4 text-gray-600 text-sm hidden md:table-cell">
+                                            <%= event.location %>
+                                        </td>
+                                        <td class="p-4 text-center">
+                                            <span class="inline-flex items-center justify-center min-w-7 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">
+                                                <%= event.attendees.length %>
+                                            </span>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <a href="/admin-dashboard?eventId=<%= event._id %>"
+                                                   class="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition <%= isActive ? 'bg-blue-600 text-white shadow-sm' : 'text-blue-600 border border-blue-200 hover:bg-blue-50' %>">
+                                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+                                                    <span class="hidden sm:inline">View</span>
+                                                </a>
+                                                <form method="POST" action="/delete-event/<%= event._id %>" class="inline"
+                                                      onsubmit="return confirm(&quot;Delete this event? This action cannot be undone.&quot;);">
+                                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                    <button type="submit"
+                                                        class="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg text-red-600 border border-red-200 hover:bg-red-50 transition">
+                                                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                                        <span class="hidden sm:inline">Delete</span>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="5" class="p-12 text-center">
+                                        <div class="inline-flex flex-col items-center gap-3">
+                                            <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                                                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                                            </div>
+                                            <p class="text-gray-500 font-medium">No events yet.</p>
+                                            <a href="/create-event" class="text-sm font-medium text-blue-600 hover:underline">Create your first event →</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Attendees panel -->
+        <section>
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-semibold text-gray-800">Registered attendees</h2>
+                <% if (selectedEvent) { %>
+                    <span class="text-sm text-gray-500">for <span class="font-medium text-gray-700"><%= selectedEvent.name %></span></span>
+                <% } %>
+            </div>
+            <div class="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/50 shadow-md overflow-hidden">
+                <% if (selectedEvent && selectedEvent.attendees.length > 0) { %>
+                    <ul class="divide-y divide-gray-100">
+                        <% selectedEvent.attendees.forEach((user, i) => { %>
+                            <li class="flex items-center gap-3 p-4 hover:bg-gray-50/60 transition">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 text-white flex items-center justify-center font-semibold avatar shrink-0">
+                                    <%= user.name.charAt(0).toUpperCase() %>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="font-medium text-gray-800 truncate"><%= user.name %></p>
+                                    <p class="text-sm text-gray-500 truncate"><%= user.email %></p>
+                                </div>
+                                <span class="hidden sm:inline-flex items-center gap-1 text-xs text-gray-400 px-2 py-1 rounded-full bg-gray-50 border border-gray-100">
+                                    #<%= String(i + 1).padStart(2, '0') %>
+                                </span>
+                            </li>
+                        <% }) %>
+                    </ul>
+                <% } else { %>
+                    <div class="p-10 text-center">
+                        <div class="inline-flex flex-col items-center gap-3">
+                            <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                            </div>
+                            <p class="text-gray-500">
+                                <% if (selectedEvent) { %>
+                                    No users registered for this event yet.
+                                <% } else { %>
+                                    Select an event above to view its registered attendees.
+                                <% } %>
+                            </p>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </section>
+    </main>
+</body>
 
 </html>
