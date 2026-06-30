@@ -23,7 +23,7 @@ exports.postLogin = async (req, res, next) => {
         return res.redirect("/admin-dashboard");
       }
 
-      res.redirect("/eventlist");
+      return res.redirect("/eventlist");
     });
   } catch (err) {
     next(err);
@@ -51,7 +51,7 @@ exports.postsignUp = async (req, res, next) => {
     const user = new User({ name, email, password, role });
     await user.save();
 
-    res.redirect("/login");
+    return res.redirect("/login");
   } catch (err) {
     next(err);
   }

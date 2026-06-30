@@ -78,11 +78,15 @@ app.use((err, req, res, next) => {
   const statusCode = err.status || 500;
   const isProduction = process.env.NODE_ENV === "production";
 
+  if (res.headersSent) {
+    return next(err);
+  }
+
   if (!isProduction) {
     console.error(`[ERROR] ${err.message}\n${err.stack}`);
   }
 
-  res.status(statusCode).render("404", {
+  return res.status(statusCode).render("404", {
     title: statusCode === 404 ? "Page Not Found" : "Server Error",
     message: isProduction ? "Something went wrong!" : err.message,
     error: isProduction ? {} : err,

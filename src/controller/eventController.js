@@ -3,18 +3,18 @@ const Event = require("../model/eventModel");
 
 exports.getEventList = async (req, res, next) => {
   const events = await Event.find();
-  res.render("eventlist", { events });
+  return res.render("eventlist", { events });
 };
 
 exports.getCreateEvent = (req, res, next) => {
-  res.render("createEvent");
+  return res.render("createEvent");
 };
 
 exports.postCreateEvent = async (req, res, next) => {
   const { name, date, location, details } = req.body;
   const event = new Event({ name, date, location, details, createdBy: req.session.userId });
   await event.save();
-  res.redirect("/admin-dashboard");
+  return res.redirect("/admin-dashboard");
 };  
 
 exports.getAdminDashboard = async (req, res, next) => {
@@ -29,7 +29,7 @@ exports.getAdminDashboard = async (req, res, next) => {
     );
   }
 
-  res.render("adminDashboard", { events, selectedEvent, selectedEventId });
+  return res.render("adminDashboard", { events, selectedEvent, selectedEventId });
 };
 
 exports.deleteEvent = async (req, res, next) => {
@@ -38,7 +38,7 @@ exports.deleteEvent = async (req, res, next) => {
     return res.status(400).send("Invalid Event ID");
   }
   await Event.findByIdAndDelete(eventId);
-  res.redirect("/admin-dashboard");
+  return res.redirect("/admin-dashboard");
 };
 
 exports.postBookEvent = async (req, res, next) => {
@@ -62,7 +62,7 @@ exports.postBookEvent = async (req, res, next) => {
     event.attendees.push(userId);
     await event.save();
 
-    res.redirect("/eventlist");
+    return res.redirect("/eventlist");
   } catch (err) {
     next(err);
   }
