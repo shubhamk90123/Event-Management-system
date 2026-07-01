@@ -2,7 +2,7 @@
 
 A robust, role-based Event Management System built with Node.js, Express, and MongoDB. This project has undergone a comprehensive security audit and hardening process to ensure it is production-ready.
 
-**Live Demo:** [https://event-management-system-production-2034.up.railway.app](https://event-management-system-production-2034.up.railway.app)
+**Live Demo:** [https://event-management-system-qfuy.onrender.com](https://event-management-system-qfuy.onrender.com)
 
 ---
 
